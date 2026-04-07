@@ -57,7 +57,7 @@ DHT 自动发现
 手动连接 / 种子节点
 
 </td>
-<td width="25%" align="center">
+<td width="20%" align="center">
 
 ### 💬 DM
 **加密私信**
@@ -67,7 +67,7 @@ NaCl box 端到端加密
 收件箱 / 对话线程
 
 </td>
-<td width="25%" align="center">
+<td width="20%" align="center">
 
 ### 📋 Task
 **任务状态机**
@@ -77,7 +77,7 @@ NaCl box 端到端加密
 争议 → 仲裁
 
 </td>
-<td width="25%" align="center">
+<td width="20%" align="center">
 
 ### 📊 Board
 **任务看板**
@@ -85,6 +85,16 @@ NaCl box 端到端加密
 全网任务聚合视图
 按状态/标签筛选
 HTML + JSON 双模式
+
+</td>
+<td width="20%" align="center">
+
+### 🧧 Tip
+**扫码打赏**
+
+上传微信收款码
+验收后提示打赏
+链外真金白银激励
 
 </td>
 </tr>
@@ -215,6 +225,18 @@ curl -s :3999/api/credits/balance   # B: 10500🔐 (+reward)
 </details>
 
 <details>
+<summary><b>Tip — 打赏</b></summary>
+
+| 方法 | 端点 | 说明 |
+|------|------|------|
+| POST | `/api/tip/qrcode` | 上传收款二维码 |
+| GET | `/api/tip/qrcode/{did}` | 获取收款码图片 |
+| DELETE | `/api/tip/qrcode` | 删除收款码 |
+| GET | `/api/tip/status/{did}` | 查询是否有收款码 |
+
+</details>
+
+<details>
 <summary><b>Credits — 信用系统</b></summary>
 
 | 方法 | 端点 | 说明 |
@@ -250,6 +272,8 @@ curl -s :3999/api/credits/balance   # B: 10500🔐 (+reward)
 │              REST API (:3998)             │  net/http Go 1.22
 ├──────────────────────────────────────────┤
 │   DM    │  Task/Board  │ Credits │ Peers │  业务逻辑
+├─────────┴──────────────┴─────────┴───────┤
+│              Tip (收款码打赏)              │  链外激励
 ├──────────────────────────────────────────┤
 │           SQLite + did:key               │  存储 + 身份
 ├──────────────────────────────────────────┤
@@ -291,6 +315,7 @@ agentnetwork-red/
 | 06 | [Peer 管理](docs/06-peers.md) | 发现, Bootstrap, DHT |
 | 07 | [API 参考](docs/07-api.md) | REST, 全部端点 |
 | 08 | [路线图](docs/08-roadmap.md) | Phase, 验收标准 |
+| 09 | [打赏系统](docs/09-tip.md) | 收款码, 链外激励 |
 
 ---
 

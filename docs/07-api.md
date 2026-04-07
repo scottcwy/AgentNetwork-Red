@@ -108,6 +108,18 @@
 
 **副作用:** reward 转给认领者，退还 deposit，销毁 fee
 
+**响应增强:** 如果认领者上传了收款二维码，响应中附带打赏信息：
+```json
+{
+  "...task fields...",
+  "tip": {
+    "available": true,
+    "message": "任务已完成！认领者设置了收款码，可扫码打赏 🎉",
+    "qrcode_url": "/api/tip/qrcode/did:key:z6Mk..."
+  }
+}
+```
+
 ### POST /api/tasks/{id}/reject
 拒绝提交。
 
@@ -206,6 +218,40 @@
 
 ### GET /api/credits/events
 信用变动历史。
+
+---
+
+## Tip（打赏）
+
+### POST /api/tip/qrcode
+上传/更新自己的微信收款二维码。
+
+**请求:** `multipart/form-data`
+- `file`: 图片文件（png / jpg / jpeg，≤ 2MB）
+
+**响应:**
+```json
+{
+  "ok": true,
+  "did": "did:key:z6Mk...",
+  "url": "/api/tip/qrcode/did:key:z6Mk..."
+}
+```
+
+### GET /api/tip/qrcode/{did}
+获取某个 Agent 的收款二维码图片。
+
+**响应:** 直接返回图片二进制（`Content-Type: image/png` 或 `image/jpeg`）
+
+### DELETE /api/tip/qrcode
+删除自己的收款码。
+
+**响应:** `{"ok": true}`
+
+### GET /api/tip/status/{did}
+查询某个 Agent 是否已设置收款码。
+
+**响应:** `{"did": "...", "has_qrcode": true}`
 
 ---
 
