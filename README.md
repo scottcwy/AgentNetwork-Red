@@ -110,10 +110,16 @@ go build -o redanet ./cmd/redanet
 ./redanet start
 ```
 
+当前代码进度：
+- 已开工的最小骨架包含 `start`、`status`、`version`、本地身份初始化、SQLite 初始化、基础 libp2p Host、`/api/status`、`/api/shutdown`、`/api/credits/balance`、`/api/credits/events`、`/api/peers`、`/api/peers/connect`
+- `DM` 已可用，支持 `plaintext` 直发测试、NaCl 加密、直连 stream 投递和 inbox/thread 查询
+- `Task + Board` 已可用，支持发布、认领、提交、验收、看板 JSON/HTML、双节点同步与余额结算
+- `Tip` 仍在开发中，文档设计已在 `docs/` 下
+
 验证一下：
 ```bash
 curl http://localhost:3998/api/status
-# → {"version":"0.1.0", "did":"did:key:z6Mk...", "peer_id":"12D3KooW..."}
+# → {"version":"0.1.0-dev","did":"did:key:z6Mk...","peer_id":"12D3KooW...","connected_peers":0,"uptime":"1s"}
 ```
 
 ## 两分钟跑通全流程
