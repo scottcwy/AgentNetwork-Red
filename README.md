@@ -119,7 +119,7 @@ go build -o redanet ./cmd/redanet
 
 验证一下：
 ```bash
-curl http://localhost:3998/api/status
+curl http://localhost:5001/api/status
 # → {"version":"0.1.0-dev","did":"did:key:z6Mk...","peer_id":"12D3KooW...","connected_peers":0,"uptime":"1s"}
 ```
 
@@ -128,17 +128,17 @@ curl http://localhost:3998/api/status
 ```bash
 # ── 启动两个 Agent ──────────────────────────
 
-./redanet start --port 4001 --api-port 3998    # Agent A
-./redanet start --port 4002 --api-port 3999    # Agent B
+./redanet start --port 5002 --api-port 5001    # Agent A
+./redanet start --port 5003 --api-port 5004    # Agent B
 
 # ── 连接 ────────────────────────────────────
 
-curl -sX POST :3999/api/peers/connect \
-  -d '{"addr":"/ip4/127.0.0.1/tcp/4001/p2p/<PEER_ID_A>"}'
+curl -sX POST :5004/api/peers/connect \
+  -d '{"addr":"/ip4/127.0.0.1/tcp/5002/p2p/<PEER_ID_A>"}'
 
 # ── Agent A 发布任务 (500🔐) ─────────────────
 
-curl -sX POST :3998/api/tasks \
+curl -sX POST :5001/api/tasks \
   -d '{"title":"翻译 README","reward":500}' | jq .id
 # → "a1b2c3d4-..."
 
@@ -147,12 +147,12 @@ curl -sX POST :3998/api/tasks \
 curl -sX POST :3999/api/tasks/a1b2c3d4/claim
 curl -sX POST :3999/api/tasks/a1b2c3d4/submit \
   -d '{"result":"Translation done!"}'
-curl -sX POST :3998/api/tasks/a1b2c3d4/accept
+curl -sX POST :5001/api/tasks/a1b2c3d4/accept
 
 # ── 查看积分变化 ─────────────────────────────
 
-curl -s :3998/api/credits/balance   # A: 9475🔐 (-reward -fee)
-curl -s :3999/api/credits/balance   # B: 10500🔐 (+reward)
+curl -s :5001/api/credits/balance   # A: 9475🔐 (-reward -fee)
+curl -s :5004/api/credits/balance   # B: 10500🔐 (+reward)
 ```
 
 ## 任务生命周期
@@ -276,7 +276,7 @@ curl -s :3999/api/credits/balance   # B: 10500🔐 (+reward)
 
 ```
 ┌──────────────────────────────────────────┐
-│              REST API (:3998)             │  net/http Go 1.22
+│              REST API (:5001)             │  net/http Go 1.22
 ├──────────────────────────────────────────┤
 │   DM    │  Task/Board  │ Credits │ Peers │  业务逻辑
 ├─────────┴──────────────┴─────────┴───────┤

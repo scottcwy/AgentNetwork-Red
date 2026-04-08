@@ -41,7 +41,7 @@ type PeerInfo struct {
 
 ```
 POST /api/peers/connect
-{"addr": "/ip4/1.2.3.4/tcp/4001/p2p/12D3KooW..."}
+{"addr": "/ip4/1.2.3.4/tcp/5002/p2p/12D3KooW..."}
 ```
 
 ## API
@@ -54,7 +54,7 @@ GET /api/peers
     "peers": [
       {
         "peer_id": "12D3KooW...",
-        "addrs": ["/ip4/10.0.1.5/tcp/4001"]
+        "addrs": ["/ip4/10.0.1.5/tcp/5002"]
       },
       ...
     ]
@@ -64,7 +64,7 @@ GET /api/peers
 ### 手动连接
 ```
 POST /api/peers/connect
-{"addr": "/ip4/1.2.3.4/tcp/4001/p2p/12D3KooW..."}
+{"addr": "/ip4/1.2.3.4/tcp/5002/p2p/12D3KooW..."}
 → {"ok": true, "peer_id": "12D3KooW..."}
 ```
 

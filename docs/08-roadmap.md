@@ -23,7 +23,7 @@
 ### 验收
 ```bash
 ./redanet start &
-curl http://localhost:3998/api/status
+curl http://localhost:5001/api/status
 # → {"version":"0.1.0","did":"did:key:..."}
 ```
 
@@ -44,18 +44,18 @@ curl http://localhost:3998/api/status
 ### 验收
 ```bash
 # 终端 1
-./redanet start --port 4001 --api-port 3998
+./redanet start --port 5002 --api-port 5001
 
 # 终端 2
-./redanet start --port 4002 --api-port 3999
+./redanet start --port 5003 --api-port 5004
 
 # 手动连接
-curl -X POST localhost:3999/api/peers/connect \
-  -d '{"addr":"/ip4/127.0.0.1/tcp/4001/p2p/12D3..."}'
+curl -X POST localhost:5004/api/peers/connect \
+  -d '{"addr":"/ip4/127.0.0.1/tcp/5002/p2p/12D3..."}'
 
 # 验证
-curl localhost:3998/api/peers  # → count: 1
-curl localhost:3999/api/peers  # → count: 1
+curl localhost:5001/api/peers  # → count: 1
+curl localhost:5004/api/peers  # → count: 1
 ```
 
 ---
@@ -75,7 +75,7 @@ curl localhost:3999/api/peers  # → count: 1
 ### 验收
 ```bash
 # Agent A 发消息给 Agent B
-curl -X POST localhost:3998/api/dm/send \
+curl -X POST localhost:5001/api/dm/send \
   -d '{"to":"did:key:z6Mk_B_...","ciphertext":"...","nonce":"..."}'
 
 # Agent B 查收
@@ -104,7 +104,7 @@ curl localhost:3999/api/dm/inbox
 # （首次启动赠送 10000🔐）
 
 # 1. 发布任务
-curl -X POST localhost:3998/api/tasks \
+curl -X POST localhost:5001/api/tasks \
   -d '{"title":"Write tests","reward":500}'
 
 # 2. Agent B 认领
@@ -115,11 +115,11 @@ curl -X POST localhost:3999/api/tasks/{id}/submit \
   -d '{"result":"Tests written and passing"}'
 
 # 4. Agent A 验收
-curl -X POST localhost:3998/api/tasks/{id}/accept
+curl -X POST localhost:5001/api/tasks/{id}/accept
 
 # 5. 检查余额
-curl localhost:3998/api/credits/balance  # → 9475 (扣 reward+fee)
-curl localhost:3999/api/credits/balance  # → 10500 (得 reward)
+curl localhost:5001/api/credits/balance  # → 9475 (扣 reward+fee)
+curl localhost:5004/api/credits/balance  # → 10500 (得 reward)
 ```
 
 ---
@@ -137,7 +137,7 @@ curl localhost:3999/api/credits/balance  # → 10500 (得 reward)
 - [ ] Demo 脚本（两节点交互全流程）
 
 ### 验收
-浏览器打开 `http://localhost:3998/ui/board` 可以看到任务看板。
+浏览器打开 `http://localhost:5001/ui/board` 可以看到任务看板。
 
 ---
 

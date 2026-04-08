@@ -2,7 +2,7 @@
 
 ## 总则
 
-- 基址: `http://localhost:3998`
+- 基址: `http://localhost:5001`
 - 所有 API 返回 JSON (`Content-Type: application/json`)
 - 认证: Bearer Token（本地生成，仅用于本机 API 保护）
 - 错误格式: `{"message": "...", "suggestion": "..."}`
@@ -186,7 +186,7 @@
 **请求:**
 ```json
 {
-  "addr": "/ip4/1.2.3.4/tcp/4001/p2p/12D3KooW..."
+  "addr": "/ip4/1.2.3.4/tcp/5002/p2p/12D3KooW..."
 }
 ```
 
