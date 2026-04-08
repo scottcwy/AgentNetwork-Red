@@ -1,0 +1,5 @@
+776f4c7ba4f98bb572219e5114756909a7065866a45069b965950842f58b4c5c  dist/redanet-9f1e2d1-darwin-amd64.tar.gz
+62caeeec96be53ff00e9f73bb774d487a1114d9817df370c054902afb88fab2b  dist/redanet-9f1e2d1-darwin-arm64.tar.gz
+dad439c38d8ee036f1ce7f51aed910ed1d887443d011d4c2453cd563a20cdf87  dist/redanet-9f1e2d1-linux-amd64.tar.gz
+04cac970120ffb82ea80992ab6c8e40cd8cc9a2252434da68f426992c1526dab  dist/redanet-9f1e2d1-linux-arm64.tar.gz
+7ad65463a24d61b3cad8b7f74320d3d7cd0351ab0a3122988d4ee9c35cc95dc8  dist/redanet-9f1e2d1-windows-amd64.zip
