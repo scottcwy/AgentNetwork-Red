@@ -92,6 +92,17 @@
 
 在 manager 落地之前，`skills/catalog.json` 就是最小统一索引。
 
+当前最小 CLI 已经落地为：
+
+```bash
+go run ./cmd/skillmgr list
+go run ./cmd/skillmgr search colleague
+go run ./cmd/skillmgr show github/titanwings/colleague-skill
+go run ./cmd/skillmgr install github/titanwings/colleague-skill
+```
+
+`install` 默认安装到 `~/.codex/skills/`，也可以用 `-target` 覆盖目标目录。
+
 目标体验是：
 
 - 用户先挑 Skill
