@@ -41,8 +41,24 @@ func main() {
 		if err := runWhoAmI(os.Args[2:]); err != nil {
 			log.Fatal(err)
 		}
+	case "profile":
+		if err := runProfile(os.Args[2:]); err != nil {
+			log.Fatal(err)
+		}
 	case "peers":
 		if err := runPeers(os.Args[2:]); err != nil {
+			log.Fatal(err)
+		}
+	case "register":
+		if err := runRegister(os.Args[2:]); err != nil {
+			log.Fatal(err)
+		}
+	case "resolve":
+		if err := runResolve(os.Args[2:]); err != nil {
+			log.Fatal(err)
+		}
+	case "lookup":
+		if err := runLookup(os.Args[2:]); err != nil {
 			log.Fatal(err)
 		}
 	case "discover":
@@ -142,6 +158,9 @@ func runStart(args []string) error {
 	for _, addr := range node.ListenAddrs() {
 		log.Printf("listen_addr=%s", addr)
 	}
+	if err := st.TouchProfilePresence(ctx, ident.DID, node.PeerID()); err != nil {
+		return err
+	}
 
 	d := daemon.New(cfg, ident, st, version).WithP2P(node)
 	err = d.Start(ctx)
@@ -152,5 +171,5 @@ func runStart(args []string) error {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "Usage: %s <start|status|whoami|peers|discover|board|task|balance|chat|pack|unpack|version> [flags]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s <start|status|whoami|profile|peers|register|resolve|lookup|discover|board|task|balance|chat|pack|unpack|version> [flags]\n", os.Args[0])
 }

@@ -108,6 +108,10 @@ func (c *apiClient) post(path string, body any) ([]byte, int, error) {
 	return c.request(http.MethodPost, path, nil, body)
 }
 
+func (c *apiClient) postQuery(path string, query url.Values, body any) ([]byte, int, error) {
+	return c.request(http.MethodPost, path, query, body)
+}
+
 func (c *apiClient) postBytes(path string, query url.Values, headers map[string]string, body []byte) ([]byte, int, error) {
 	return c.requestBytes(http.MethodPost, path, query, headers, body)
 }

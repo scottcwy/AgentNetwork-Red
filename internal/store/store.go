@@ -152,11 +152,30 @@ func (s *Store) migrate() error {
 			uploader TEXT NOT NULL,
 			uploaded_at TEXT NOT NULL
 		);`,
+		`CREATE TABLE IF NOT EXISTS agent_profiles (
+			did TEXT PRIMARY KEY,
+			name TEXT NOT NULL DEFAULT '',
+			description TEXT NOT NULL DEFAULT '',
+			skills TEXT NOT NULL DEFAULT '',
+			tags TEXT NOT NULL DEFAULT '',
+			peer_id TEXT NOT NULL DEFAULT '',
+			created_at TEXT NOT NULL,
+			updated_at TEXT NOT NULL
+		);`,
+		`CREATE TABLE IF NOT EXISTS ans_records (
+			name TEXT PRIMARY KEY,
+			did TEXT NOT NULL UNIQUE,
+			tags TEXT NOT NULL DEFAULT '',
+			registered_at TEXT NOT NULL,
+			updated_at TEXT NOT NULL
+		);`,
 		`CREATE INDEX IF NOT EXISTS idx_tasks_state ON tasks(state);`,
 		`CREATE INDEX IF NOT EXISTS idx_tasks_publisher ON tasks(publisher);`,
 		`CREATE INDEX IF NOT EXISTS idx_credits_peer ON credit_events(peer_did);`,
 		`CREATE INDEX IF NOT EXISTS idx_dm_to ON direct_messages(to_did, timestamp);`,
 		`CREATE INDEX IF NOT EXISTS idx_dm_thread ON direct_messages(from_did, to_did);`,
+		`CREATE INDEX IF NOT EXISTS idx_profiles_updated_at ON agent_profiles(updated_at);`,
+		`CREATE INDEX IF NOT EXISTS idx_ans_did ON ans_records(did);`,
 	}
 
 	tx, err := s.db.Begin()

@@ -198,7 +198,8 @@
 
 ## 3. P2 延后项（不要阻塞首版）
 
-- [ ] `/api/discover` 的真正搜索能力
+- [x] `/api/discover` 的真正搜索能力
+- [x] `Profile / ANS` 本地持久化与 `register / resolve / lookup`
 - [ ] 任务与 DM 的签名验证闭环
 - [x] Tip 的跨节点拉取协议 `/anet/tip/1.0.0`
 - [ ] Peer reputation / `peers` 持久化表

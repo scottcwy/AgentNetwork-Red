@@ -137,6 +137,7 @@ func runPeers(args []string) error {
 func runDiscover(args []string) error {
 	fs := flag.NewFlagSet("discover", flag.ContinueOnError)
 	api := addAPIFlags(fs)
+	skills := fs.String("skills", "", "Comma-separated skills filter")
 	limit := fs.Int("limit", 20, "Result limit")
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -152,11 +153,183 @@ func runDiscover(args []string) error {
 	if query != "" {
 		values.Set("q", query)
 	}
+	if strings.TrimSpace(*skills) != "" {
+		values.Set("skills", strings.TrimSpace(*skills))
+	}
 	if *limit > 0 {
 		values.Set("limit", strconv.Itoa(*limit))
 	}
 
 	body, status, err := client.get("/api/discover", values)
+	if err != nil {
+		return err
+	}
+	if err := ensureHTTPSuccess(status, body); err != nil {
+		return err
+	}
+	return printJSON(body)
+}
+
+func runProfile(args []string) error {
+	if len(args) == 0 {
+		return runProfileGet(args)
+	}
+
+	switch args[0] {
+	case "publish":
+		return runProfilePublish(args[1:])
+	case "get":
+		return runProfileGet(args[1:])
+	default:
+		return runProfileGet(args)
+	}
+}
+
+func runProfileGet(args []string) error {
+	fs := flag.NewFlagSet("profile get", flag.ContinueOnError)
+	api := addAPIFlags(fs)
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+
+	client, err := newAPIClient(api)
+	if err != nil {
+		return err
+	}
+
+	endpoint := "/api/profile"
+	if len(fs.Args()) >= 1 {
+		endpoint = "/api/profile/" + url.PathEscape(fs.Args()[0])
+	}
+
+	body, status, err := client.get(endpoint, nil)
+	if err != nil {
+		return err
+	}
+	if err := ensureHTTPSuccess(status, body); err != nil {
+		return err
+	}
+	return printJSON(body)
+}
+
+func runProfilePublish(args []string) error {
+	fs := flag.NewFlagSet("profile publish", flag.ContinueOnError)
+	api := addAPIFlags(fs)
+	name := fs.String("name", "", "Profile name")
+	desc := fs.String("desc", "", "Profile description")
+	skills := fs.String("skills", "", "Comma-separated skills")
+	tags := fs.String("tags", "", "Comma-separated tags")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+
+	client, err := newAPIClient(api)
+	if err != nil {
+		return err
+	}
+
+	body, status, err := client.post("/api/profile/publish", map[string]any{
+		"name":        strings.TrimSpace(*name),
+		"description": strings.TrimSpace(*desc),
+		"skills":      splitCLIList(*skills),
+		"tags":        splitCLIList(*tags),
+	})
+	if err != nil {
+		return err
+	}
+	if err := ensureHTTPSuccess(status, body); err != nil {
+		return err
+	}
+	return printJSON(body)
+}
+
+func runRegister(args []string) error {
+	fs := flag.NewFlagSet("register", flag.ContinueOnError)
+	api := addAPIFlags(fs)
+	tags := fs.String("tags", "", "Comma-separated tags")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	if len(fs.Args()) < 1 {
+		return fmt.Errorf("usage: %s register [flags] <name> [tags]", os.Args[0])
+	}
+
+	name := strings.TrimSpace(fs.Args()[0])
+	rawTags := strings.TrimSpace(*tags)
+	if rawTags == "" && len(fs.Args()) > 1 {
+		rawTags = strings.Join(fs.Args()[1:], ",")
+	}
+
+	client, err := newAPIClient(api)
+	if err != nil {
+		return err
+	}
+
+	query := url.Values{}
+	query.Set("confirm", "yes")
+	body, status, err := client.postQuery("/api/ans/register", query, map[string]any{
+		"name": name,
+		"tags": splitCLIList(rawTags),
+	})
+	if err != nil {
+		return err
+	}
+	if err := ensureHTTPSuccess(status, body); err != nil {
+		return err
+	}
+	return printJSON(body)
+}
+
+func runResolve(args []string) error {
+	fs := flag.NewFlagSet("resolve", flag.ContinueOnError)
+	api := addAPIFlags(fs)
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	if len(fs.Args()) < 1 {
+		return fmt.Errorf("usage: %s resolve <name>", os.Args[0])
+	}
+
+	client, err := newAPIClient(api)
+	if err != nil {
+		return err
+	}
+
+	values := url.Values{}
+	values.Set("name", strings.TrimSpace(fs.Args()[0]))
+	body, status, err := client.get("/api/ans/resolve", values)
+	if err != nil {
+		return err
+	}
+	if err := ensureHTTPSuccess(status, body); err != nil {
+		return err
+	}
+	return printJSON(body)
+}
+
+func runLookup(args []string) error {
+	fs := flag.NewFlagSet("lookup", flag.ContinueOnError)
+	api := addAPIFlags(fs)
+	limit := fs.Int("limit", 20, "Result limit")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	if len(fs.Args()) < 1 {
+		return fmt.Errorf("usage: %s lookup [flags] <tag1> [tag2...]", os.Args[0])
+	}
+
+	client, err := newAPIClient(api)
+	if err != nil {
+		return err
+	}
+
+	values := url.Values{}
+	values.Set("tags", strings.Join(fs.Args(), ","))
+	if *limit > 0 {
+		values.Set("limit", strconv.Itoa(*limit))
+	}
+
+	body, status, err := client.get("/api/ans/lookup", values)
 	if err != nil {
 		return err
 	}
@@ -455,4 +628,22 @@ func jsonMarshal(value any) ([]byte, error) {
 
 func jsonUnmarshal(data []byte, target any) error {
 	return json.Unmarshal(data, target)
+}
+
+func splitCLIList(raw string) []string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return nil
+	}
+	parts := strings.FieldsFunc(raw, func(r rune) bool {
+		return r == ',' || r == '\n'
+	})
+	out := make([]string, 0, len(parts))
+	for _, part := range parts {
+		trimmed := strings.TrimSpace(part)
+		if trimmed != "" {
+			out = append(out, trimmed)
+		}
+	}
+	return out
 }
