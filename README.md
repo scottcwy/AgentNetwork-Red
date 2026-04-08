@@ -324,6 +324,17 @@ agentnetwork-red/
 | 08 | [路线图](docs/08-roadmap.md) | Phase, 验收标准 |
 | 09 | [打赏系统](docs/09-tip.md) | 收款码, 链外激励 |
 
+## 线下资料库
+
+仓库现在包含一套极简的小红书种子库，用于沉淀可爬取的小红书主页 URL、必填封面图和少量补充信息，并生成项目 wrap-up display：
+
+- [bd/README.md](bd/README.md): 种子库入口与命令说明
+- [bd/schema.md](bd/schema.md): `SeedRecord` 字段、URL 规范化和去重规则
+- [bd/sop.md](bd/sop.md): 线下最小采集规范
+- [bd/lark-bot-input.md](bd/lark-bot-input.md): 飞书 bot 采集输入格式
+- [bd/inbox.md](bd/inbox.md): 本地 inbox 与同步层
+- [bd/db-schema.md](bd/db-schema.md): raw-first DB 设计说明
+
 ---
 
 <div align="center">
