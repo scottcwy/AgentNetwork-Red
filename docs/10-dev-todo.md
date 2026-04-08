@@ -18,7 +18,7 @@
   当前文档对 `abandon` 的结果存在冲突：一处写“回到 created”，一处图示接近“进入 expired”
 - [ ] 确认 API 鉴权是否首版上线
   `07-api.md` 写了 Bearer Token，但路线图未纳入实现任务
-- [ ] 确认 `/api/discover` 的 MVP 定义
+- [x] 确认 `/api/discover` 的 MVP 定义
   当前只有接口形态，没有可直接编码的数据来源、索引策略和排序规则
 - [ ] 确认 Tip 的网络模型
   `09-tip.md` 提到本地存储 + `/anet/tip/1.0.0` 按需拉取，但路线图尚未覆盖
@@ -28,7 +28,7 @@
 - [ ] `v0.1` 不做复杂发现搜索，`/api/discover` 可先返回已连接 peers 的简化结果，或直接延后
 - [ ] `abandon` 作为动作，不作为稳定终态；执行后任务回到 `created`，并记录审计事件
 - [ ] Bearer Token 先做“可配置开启”，默认仅绑定 `127.0.0.1`
-- [ ] Tip 先做本地上传/查询接口，不做跨节点拉取
+- [x] Tip 先做本地上传/查询接口，不做复杂同步；当前已补充简化跨节点按需拉取
 
 ---
 
@@ -73,7 +73,7 @@
 ### 1.5 Daemon 与基础 API
 
 - [x] 启动 HTTP server
-- [ ] 注册路由与中间件
+- [x] 注册路由与中间件
 - [x] 实现 `GET /api/status`
 - [x] 实现 `POST /api/shutdown`
 - [x] 统一 JSON 编码、错误格式、状态码
@@ -178,14 +178,14 @@
 
 ### 2.1 Tip 打赏
 
-- [ ] 创建 `tip_qrcodes` 表
-- [ ] 实现图片上传校验：格式、大小、magic bytes
-- [ ] 实现 `POST /api/tip/qrcode`
-- [ ] 实现 `GET /api/tip/qrcode/{did}`
-- [ ] 实现 `DELETE /api/tip/qrcode`
-- [ ] 实现 `GET /api/tip/status/{did}`
-- [ ] 在 `accept` 响应中追加 tip 信息
-- [ ] 在 `/ui/board` 已完成卡片中增加“打赏”入口
+- [x] 创建 `tip_qrcodes` 表
+- [x] 实现图片上传校验：格式、大小、magic bytes
+- [x] 实现 `POST /api/tip/qrcode`
+- [x] 实现 `GET /api/tip/qrcode/{did}`
+- [x] 实现 `DELETE /api/tip/qrcode`
+- [x] 实现 `GET /api/tip/status/{did}`
+- [x] 在 `accept` 响应中追加 tip 信息
+- [x] 在 `/ui/board` 已完成卡片中增加“打赏”入口
 
 ### 2.2 Demo 体验
 
@@ -200,7 +200,7 @@
 
 - [ ] `/api/discover` 的真正搜索能力
 - [ ] 任务与 DM 的签名验证闭环
-- [ ] Tip 的跨节点拉取协议 `/anet/tip/1.0.0`
+- [x] Tip 的跨节点拉取协议 `/anet/tip/1.0.0`
 - [ ] Peer reputation / `peers` 持久化表
 - [ ] 密钥轮换
 - [ ] 多设备身份同步

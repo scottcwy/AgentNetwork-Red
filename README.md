@@ -114,7 +114,8 @@ go build -o redanet ./cmd/redanet
 - 已开工的最小骨架包含 `start`、`status`、`version`、本地身份初始化、SQLite 初始化、基础 libp2p Host、`/api/status`、`/api/shutdown`、`/api/credits/balance`、`/api/credits/events`、`/api/peers`、`/api/peers/connect`
 - `DM` 已可用，支持 `plaintext` 直发测试、NaCl 加密、直连 stream 投递和 inbox/thread 查询
 - `Task + Board` 已可用，支持发布、认领、提交、验收、看板 JSON/HTML、双节点同步与余额结算
-- `Tip` 仍在开发中，文档设计已在 `docs/` 下
+- `Tip` MVP 已可用，支持二维码上传、状态查询、跨节点按需拉取、验收响应附带打赏信息
+- `/api/discover` 已提供简化版实现，返回当前已连接 peers 的过滤结果
 
 验证一下：
 ```bash

@@ -3,6 +3,7 @@ package p2p
 import (
 	"context"
 	"crypto/ed25519"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -28,6 +29,7 @@ const (
 	dmTopicID    = "/anet/dm"
 	tasksTopicID = "/anet/tasks"
 	dmStreamID   = protocol.ID("/anet/dm/1.0.0")
+	tipStreamID  = protocol.ID("/anet/tip/1.0.0")
 )
 
 type Node struct {
@@ -41,6 +43,20 @@ type Node struct {
 	subscriptions []*pubsub.Subscription
 	dmHandler     func(context.Context, []byte) error
 	taskHandler   func(context.Context, []byte) error
+	tipHandler    func(context.Context, TipRequest) (TipResponse, error)
+}
+
+type TipRequest struct {
+	DID         string `json:"did"`
+	IncludeData bool   `json:"include_data,omitempty"`
+}
+
+type TipResponse struct {
+	Found     bool   `json:"found"`
+	Filename  string `json:"filename,omitempty"`
+	MimeType  string `json:"mime_type,omitempty"`
+	Data      string `json:"data,omitempty"`
+	UpdatedAt string `json:"updated_at,omitempty"`
 }
 
 type PeerInfo struct {
@@ -113,6 +129,7 @@ func New(parent context.Context, cfg config.Config, ident *identity.Identity) (*
 	}
 
 	node.Host.SetStreamHandler(dmStreamID, node.handleDMStream)
+	node.Host.SetStreamHandler(tipStreamID, node.handleTipStream)
 
 	if err := node.subscribeTopic(ctx, dmTopicID); err != nil {
 		_ = node.Close()
@@ -219,6 +236,10 @@ func (n *Node) SetTaskHandler(handler func(context.Context, []byte) error) {
 	n.taskHandler = handler
 }
 
+func (n *Node) SetTipHandler(handler func(context.Context, TipRequest) (TipResponse, error)) {
+	n.tipHandler = handler
+}
+
 func (n *Node) PublishDM(ctx context.Context, payload []byte) error {
 	topic, ok := n.topics[dmTopicID]
 	if !ok {
@@ -266,6 +287,40 @@ func (n *Node) SendDMStream(ctx context.Context, peerID peer.ID, payload []byte)
 		return errors.New(ack.Error)
 	}
 	return nil
+}
+
+func (n *Node) RequestTip(ctx context.Context, peerID peer.ID, req TipRequest) (TipResponse, error) {
+	streamCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	stream, err := n.Host.NewStream(streamCtx, peerID, tipStreamID)
+	if err != nil {
+		return TipResponse{}, err
+	}
+	defer stream.Close()
+
+	if err := json.NewEncoder(stream).Encode(req); err != nil {
+		return TipResponse{}, err
+	}
+	if err := stream.CloseWrite(); err != nil {
+		return TipResponse{}, err
+	}
+
+	var resp struct {
+		OK    bool        `json:"ok"`
+		Error string      `json:"error,omitempty"`
+		Tip   TipResponse `json:"tip"`
+	}
+	if err := json.NewDecoder(io.LimitReader(stream, 4<<20)).Decode(&resp); err != nil {
+		return TipResponse{}, err
+	}
+	if !resp.OK {
+		if resp.Error == "" {
+			resp.Error = "remote tip handler rejected request"
+		}
+		return TipResponse{}, errors.New(resp.Error)
+	}
+	return resp.Tip, nil
 }
 
 func (n *Node) subscribeTopic(ctx context.Context, topicName string) error {
@@ -341,6 +396,60 @@ func (n *Node) handleDMStream(stream network.Stream) {
 	}
 
 	_ = json.NewEncoder(stream).Encode(map[string]any{"ok": true})
+}
+
+func (n *Node) handleTipStream(stream network.Stream) {
+	defer stream.Close()
+
+	var req TipRequest
+	if err := json.NewDecoder(io.LimitReader(stream, 1<<20)).Decode(&req); err != nil {
+		_ = json.NewEncoder(stream).Encode(map[string]any{
+			"ok":    false,
+			"error": err.Error(),
+		})
+		return
+	}
+	if req.DID == "" {
+		_ = json.NewEncoder(stream).Encode(map[string]any{
+			"ok":    false,
+			"error": "missing did",
+		})
+		return
+	}
+	if n.tipHandler == nil {
+		_ = json.NewEncoder(stream).Encode(map[string]any{
+			"ok":    false,
+			"error": "tip handler unavailable",
+		})
+		return
+	}
+
+	resp, err := n.tipHandler(context.Background(), req)
+	if err != nil {
+		_ = json.NewEncoder(stream).Encode(map[string]any{
+			"ok":    false,
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if !req.IncludeData {
+		resp.Data = ""
+	} else if resp.Data != "" {
+		// Keep binary payload ASCII-safe on the wire.
+		if _, err := base64.StdEncoding.DecodeString(resp.Data); err != nil {
+			_ = json.NewEncoder(stream).Encode(map[string]any{
+				"ok":    false,
+				"error": "invalid tip payload encoding",
+			})
+			return
+		}
+	}
+
+	_ = json.NewEncoder(stream).Encode(map[string]any{
+		"ok":  true,
+		"tip": resp,
+	})
 }
 
 func (n *Node) connectBootstrapPeers(ctx context.Context, peers []peer.AddrInfo) {

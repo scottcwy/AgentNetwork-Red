@@ -21,6 +21,16 @@ type taskEnvelope struct {
 	Timestamp string     `json:"timestamp"`
 }
 
+type taskResponse struct {
+	store.Task
+	Tip tipInfo `json:"tip,omitempty"`
+}
+
+type boardTaskCard struct {
+	store.Task
+	Tip tipInfo
+}
+
 func (d *Daemon) handleTasksCollection(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
@@ -124,7 +134,10 @@ func (d *Daemon) handleTaskItem(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		d.afterTaskMutation(r.Context(), "accepted", task)
-		writeJSON(w, http.StatusOK, task)
+		writeJSON(w, http.StatusOK, taskResponse{
+			Task: task,
+			Tip:  d.resolveTipInfo(r.Context(), task.Claimant),
+		})
 	case "reject":
 		task, err := d.store.RejectTask(r.Context(), id, d.identity.DID)
 		if err != nil {
@@ -215,9 +228,13 @@ func (d *Daemon) handleBoardUI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	columns := []string{"created", "claimed", "submitted", "accepted", "disputed"}
-	grouped := map[string][]store.Task{}
+	grouped := map[string][]boardTaskCard{}
 	for _, task := range tasks {
-		grouped[task.State] = append(grouped[task.State], task)
+		card := boardTaskCard{Task: task}
+		if task.Claimant != "" && (task.State == "accepted" || task.State == "released") {
+			card.Tip = d.resolveTipInfo(r.Context(), task.Claimant)
+		}
+		grouped[task.State] = append(grouped[task.State], card)
 	}
 	tmpl := template.Must(template.New("board").Parse(boardHTML))
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -336,6 +353,12 @@ body{font-family:ui-sans-serif,system-ui,sans-serif;background:#f5f3ee;color:#16
 h1{margin:0 0 16px}
 h2{margin:0 0 8px;font-size:18px}
 p{margin:6px 0}
+button{border:0;border-radius:999px;background:#d94f1d;color:#fff;padding:8px 12px;cursor:pointer}
+dialog{border:0;border-radius:16px;padding:0;max-width:min(92vw,420px)}
+dialog::backdrop{background:rgba(20,16,12,.45)}
+.tip-panel{padding:18px;background:#fff8ef}
+.tip-panel img{display:block;max-width:100%;border-radius:12px;border:1px solid #eadfce}
+.tip-panel form{margin-top:12px;text-align:right}
 </style>
 </head>
 <body>
@@ -350,6 +373,9 @@ p{margin:6px 0}
 <p><strong>{{.Title}}</strong></p>
 <p>reward: {{.Reward}}</p>
 <p>{{.Description}}</p>
+{{if .Tip.Available}}
+<button type="button" onclick="openTip('{{.ID}}','{{.Tip.QRCodeURL}}','{{.Tip.ClaimantDID}}')">打赏</button>
+{{end}}
 </article>
 {{else}}
 <p>empty</p>
@@ -357,5 +383,24 @@ p{margin:6px 0}
 </section>
 {{end}}
 </div>
+<dialog id="tip-dialog">
+  <div class="tip-panel">
+    <p id="tip-title"></p>
+    <img id="tip-image" alt="tip qrcode">
+    <form method="dialog">
+      <button type="submit">关闭</button>
+    </form>
+  </div>
+</dialog>
+<script>
+const tipDialog = document.getElementById('tip-dialog');
+const tipTitle = document.getElementById('tip-title');
+const tipImage = document.getElementById('tip-image');
+function openTip(taskID, url, claimantDID) {
+  tipTitle.textContent = '任务 ' + taskID + ' · ' + claimantDID;
+  tipImage.src = url;
+  tipDialog.showModal();
+}
+</script>
 </body>
 </html>`

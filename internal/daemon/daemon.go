@@ -54,6 +54,7 @@ func (d *Daemon) WithP2P(node *p2p.Node) *Daemon {
 	if d.p2p != nil {
 		d.p2p.SetDMHandler(d.receiveDMPayload)
 		d.p2p.SetTaskHandler(d.receiveTaskPayload)
+		d.p2p.SetTipHandler(d.handleTipRequest)
 	}
 	return d
 }
@@ -68,9 +69,13 @@ func (d *Daemon) Start(ctx context.Context) error {
 	mux.Handle("/api/credits/events", d.withOptionalAuth(http.HandlerFunc(d.handleCreditEvents)))
 	mux.Handle("/api/peers", d.withOptionalAuth(http.HandlerFunc(d.handlePeers)))
 	mux.Handle("/api/peers/connect", d.withOptionalAuth(http.HandlerFunc(d.handleConnectPeer)))
+	mux.Handle("/api/discover", d.withOptionalAuth(http.HandlerFunc(d.handleDiscoverPeers)))
 	mux.Handle("/api/dm/send", d.withOptionalAuth(http.HandlerFunc(d.handleDMSend)))
 	mux.Handle("/api/dm/inbox", d.withOptionalAuth(http.HandlerFunc(d.handleDMInbox)))
 	mux.Handle("/api/dm/thread/", d.withOptionalAuth(http.HandlerFunc(d.handleDMThread)))
+	mux.Handle("/api/tip/qrcode/", d.withOptionalAuth(http.HandlerFunc(d.handleTipQRCodeItem)))
+	mux.Handle("/api/tip/qrcode", d.withOptionalAuth(http.HandlerFunc(d.handleTipQRCodeCollection)))
+	mux.Handle("/api/tip/status/", d.withOptionalAuth(http.HandlerFunc(d.handleTipStatus)))
 	mux.Handle("/api/tasks/board/stats", d.withOptionalAuth(http.HandlerFunc(d.handleTaskBoardStats)))
 	mux.Handle("/api/tasks/board", d.withOptionalAuth(http.HandlerFunc(d.handleTaskBoard)))
 	mux.Handle("/api/tasks/", d.withOptionalAuth(http.HandlerFunc(d.handleTaskItem)))
