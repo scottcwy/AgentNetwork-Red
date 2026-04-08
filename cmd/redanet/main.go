@@ -5,13 +5,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"agentnetwork-red/internal/config"
 	"agentnetwork-red/internal/daemon"
@@ -37,6 +35,34 @@ func main() {
 		}
 	case "status":
 		if err := runStatus(os.Args[2:]); err != nil {
+			log.Fatal(err)
+		}
+	case "whoami":
+		if err := runWhoAmI(os.Args[2:]); err != nil {
+			log.Fatal(err)
+		}
+	case "peers":
+		if err := runPeers(os.Args[2:]); err != nil {
+			log.Fatal(err)
+		}
+	case "discover":
+		if err := runDiscover(os.Args[2:]); err != nil {
+			log.Fatal(err)
+		}
+	case "board":
+		if err := runBoard(os.Args[2:]); err != nil {
+			log.Fatal(err)
+		}
+	case "task":
+		if err := runTask(os.Args[2:]); err != nil {
+			log.Fatal(err)
+		}
+	case "balance":
+		if err := runBalance(os.Args[2:]); err != nil {
+			log.Fatal(err)
+		}
+	case "chat":
+		if err := runChat(os.Args[2:]); err != nil {
 			log.Fatal(err)
 		}
 	case "version":
@@ -117,52 +143,6 @@ func runStart(args []string) error {
 	return err
 }
 
-func runStatus(args []string) error {
-	fs := flag.NewFlagSet("status", flag.ContinueOnError)
-	configPath := fs.String("config", "", "Path to config YAML")
-	apiHost := fs.String("api-host", "", "Override API host")
-	apiPort := fs.Int("api-port", 0, "Override API port")
-	token := fs.String("token", "", "Bearer token override")
-	timeout := fs.Duration("timeout", 3*time.Second, "Request timeout")
-	if err := fs.Parse(args); err != nil {
-		return err
-	}
-
-	cfg, err := config.Load(*configPath)
-	if err != nil {
-		return err
-	}
-	cfg.ApplyCLIOverrides("", *apiHost, *apiPort)
-	if *token != "" {
-		cfg.APIToken = *token
-	}
-
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("http://%s:%d/api/status", cfg.APIHost, cfg.APIPort), nil)
-	if err != nil {
-		return err
-	}
-	if cfg.APIToken != "" {
-		req.Header.Set("Authorization", "Bearer "+cfg.APIToken)
-	}
-
-	client := &http.Client{Timeout: *timeout}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	if _, err := os.Stdout.Write(body); err != nil {
-		return err
-	}
-	return nil
-}
-
 func usage() {
-	fmt.Fprintf(os.Stderr, "Usage: %s <start|status|version> [flags]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s <start|status|whoami|peers|discover|board|task|balance|chat|version> [flags]\n", os.Args[0])
 }
