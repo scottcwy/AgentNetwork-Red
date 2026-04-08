@@ -39,6 +39,11 @@
 - 我们把它抓进仓库，补最小元数据
 - manager 基于这些内容做浏览、筛选和安装
 
+当前落点先统一为：
+
+- `skills/third_party/github/...`
+- `skills/catalog.json`
+
 ## 最小入库单元
 
 每个已入库 Skill 至少应有两部分：
@@ -54,8 +59,21 @@
 - 一句话摘要
 - 基本标签
 - manager 用于展示和安装的必要信息
+- 当前导入模式
+- 当前验证状态
 
 只要 manager 还要靠猜，元数据就还不够。
+
+第一批允许先只抓 `SKILL.md`，但要明确标记为：
+
+- `import_mode = skill-md-only`
+- `status = unverified`
+
+这样 manager 后续才能区分：
+
+- 已入库
+- 已验证
+- 可直接安装
 
 ## Manager 最小能力
 

@@ -18,6 +18,27 @@
 
 换句话说，`skills/` 不再只是目录页，也不只是“有趣项目观察名单”。
 
+## 当前已入库
+
+第一批已经统一落到：
+
+- `skills/third_party/github/...`
+- `skills/catalog.json`
+
+当前这一批是“先收进来”的种子库，来源包括：
+
+- `HughYau/qiushi-skill`
+- `mliu98/awesome-human-distillation` 里挑出的高活跃仓库
+- `VoltAgent/awesome-openclaw-skills` 指向的 `openclaw/skills` 条目
+
+重要边界：
+
+- 目前是 `SKILL.md` 原始入库优先
+- 每个 Skill 都带最小 `metadata.json`
+- 当前默认状态是 `skill-md-only` + `unverified`
+
+也就是说，已经收进仓库，不等于已经验证可以一键安装运行。
+
 ## 当前确认目标
 
 当前主线已经明确：
@@ -54,6 +75,7 @@
 - 一句话说明
 - 标签或分类
 - 安装时展示所需的信息
+- 当前导入状态与验证状态
 
 元数据的具体字段可以小，但不能小到 manager 无法用。
 
@@ -67,6 +89,8 @@
 - `search` / `filter`
 - `show metadata`
 - `install`
+
+在 manager 落地之前，`skills/catalog.json` 就是最小统一索引。
 
 目标体验是：
 
@@ -86,6 +110,7 @@
 - 优先收公开可获取的 `SKILL.md`
 - 收录时必须保留来源信息，避免变成来源不明的二次拼贴
 - 元数据先求够用，不先做过度设计
+- 第一批允许先只收 `SKILL.md`，但要明确标记为 `unverified`
 - 先把“能收、能看、能装”跑通，再讨论质量评级和大而全分类
 - 不要求第一版解决所有上游同步问题
 

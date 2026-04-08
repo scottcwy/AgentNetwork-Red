@@ -1,0 +1,12 @@
+{
+  "id": "github/HughYau/qiushi-skill/concentrate-forces",
+  "provider": "github",
+  "local_path": "skills/third_party/github/HughYau/qiushi-skill/concentrate-forces/SKILL.md",
+  "source_repo_url": "https://github.com/HughYau/qiushi-skill",
+  "source_path": "skills/concentrate-forces/SKILL.md",
+  "source_raw_url": "https://raw.githubusercontent.com/HughYau/qiushi-skill/main/skills/concentrate-forces/SKILL.md",
+  "discovery_source": "HughYau/qiushi-skill",
+  "imported_at": "2026-04-08",
+  "import_mode": "skill-md-only",
+  "status": "unverified"
+}

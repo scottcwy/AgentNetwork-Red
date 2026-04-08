@@ -1,0 +1,12 @@
+{
+  "id": "github/titanwings/ex-skill",
+  "provider": "github",
+  "local_path": "skills/third_party/github/titanwings/ex-skill/SKILL.md",
+  "source_repo_url": "https://github.com/titanwings/ex-skill",
+  "source_path": "SKILL.md",
+  "source_raw_url": "https://raw.githubusercontent.com/titanwings/ex-skill/master/SKILL.md",
+  "discovery_source": "mliu98/awesome-human-distillation",
+  "imported_at": "2026-04-08",
+  "import_mode": "skill-md-only",
+  "status": "unverified"
+}

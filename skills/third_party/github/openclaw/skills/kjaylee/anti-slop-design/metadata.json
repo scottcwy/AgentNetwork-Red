@@ -1,0 +1,12 @@
+{
+  "id": "github/openclaw/skills/kjaylee/anti-slop-design",
+  "provider": "github",
+  "local_path": "skills/third_party/github/openclaw/skills/kjaylee/anti-slop-design/SKILL.md",
+  "source_repo_url": "https://github.com/openclaw/skills",
+  "source_path": "skills/kjaylee/anti-slop-design/SKILL.md",
+  "source_raw_url": "https://raw.githubusercontent.com/openclaw/skills/main/skills/kjaylee/anti-slop-design/SKILL.md",
+  "discovery_source": "VoltAgent/awesome-openclaw-skills",
+  "imported_at": "2026-04-08",
+  "import_mode": "skill-md-only",
+  "status": "unverified"
+}

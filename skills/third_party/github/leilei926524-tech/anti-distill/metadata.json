@@ -1,0 +1,12 @@
+{
+  "id": "github/leilei926524-tech/anti-distill",
+  "provider": "github",
+  "local_path": "skills/third_party/github/leilei926524-tech/anti-distill/SKILL.md",
+  "source_repo_url": "https://github.com/leilei926524-tech/anti-distill",
+  "source_path": "SKILL.md",
+  "source_raw_url": "https://raw.githubusercontent.com/leilei926524-tech/anti-distill/master/SKILL.md",
+  "discovery_source": "mliu98/awesome-human-distillation",
+  "imported_at": "2026-04-08",
+  "import_mode": "skill-md-only",
+  "status": "unverified"
+}

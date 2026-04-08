@@ -1,0 +1,12 @@
+{
+  "id": "github/openclaw/skills/manuelkiessling/ask-a-human",
+  "provider": "github",
+  "local_path": "skills/third_party/github/openclaw/skills/manuelkiessling/ask-a-human/SKILL.md",
+  "source_repo_url": "https://github.com/openclaw/skills",
+  "source_path": "skills/manuelkiessling/ask-a-human/SKILL.md",
+  "source_raw_url": "https://raw.githubusercontent.com/openclaw/skills/main/skills/manuelkiessling/ask-a-human/SKILL.md",
+  "discovery_source": "VoltAgent/awesome-openclaw-skills",
+  "imported_at": "2026-04-08",
+  "import_mode": "skill-md-only",
+  "status": "unverified"
+}
