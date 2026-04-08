@@ -218,6 +218,8 @@ func runTask(args []string) error {
 		return runTaskPublish(args[1:])
 	case "get":
 		return runTaskGet(args[1:])
+	case "bundle":
+		return runTaskBundle(args[1:])
 	case "list", "board":
 		return runBoard(args[1:])
 	case "stats":

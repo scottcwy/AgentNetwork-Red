@@ -144,6 +144,14 @@ func (s *Store) migrate() error {
 			data BLOB NOT NULL,
 			updated_at TEXT NOT NULL
 		);`,
+		`CREATE TABLE IF NOT EXISTS task_bundles (
+			task_id TEXT PRIMARY KEY,
+			filename TEXT NOT NULL,
+			mime_type TEXT NOT NULL,
+			data BLOB NOT NULL,
+			uploader TEXT NOT NULL,
+			uploaded_at TEXT NOT NULL
+		);`,
 		`CREATE INDEX IF NOT EXISTS idx_tasks_state ON tasks(state);`,
 		`CREATE INDEX IF NOT EXISTS idx_tasks_publisher ON tasks(publisher);`,
 		`CREATE INDEX IF NOT EXISTS idx_credits_peer ON credit_events(peer_did);`,

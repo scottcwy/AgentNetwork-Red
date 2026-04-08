@@ -65,6 +65,14 @@ func main() {
 		if err := runChat(os.Args[2:]); err != nil {
 			log.Fatal(err)
 		}
+	case "pack":
+		if err := runPack(os.Args[2:]); err != nil {
+			log.Fatal(err)
+		}
+	case "unpack":
+		if err := runUnpack(os.Args[2:]); err != nil {
+			log.Fatal(err)
+		}
 	case "version":
 		fmt.Println(version)
 	default:
@@ -144,5 +152,5 @@ func runStart(args []string) error {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "Usage: %s <start|status|whoami|peers|discover|board|task|balance|chat|version> [flags]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s <start|status|whoami|peers|discover|board|task|balance|chat|pack|unpack|version> [flags]\n", os.Args[0])
 }

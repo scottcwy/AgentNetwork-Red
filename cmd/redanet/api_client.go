@@ -57,11 +57,6 @@ func newAPIClient(flags *apiFlags) (*apiClient, error) {
 }
 
 func (c *apiClient) request(method, path string, query url.Values, body any) ([]byte, int, error) {
-	fullURL := c.baseURL + path
-	if len(query) > 0 {
-		fullURL += "?" + query.Encode()
-	}
-
 	var payload []byte
 	if body != nil {
 		encoded, err := json.Marshal(body)
@@ -70,13 +65,23 @@ func (c *apiClient) request(method, path string, query url.Values, body any) ([]
 		}
 		payload = encoded
 	}
+	return c.requestBytes(method, path, query, map[string]string{"Content-Type": "application/json"}, payload)
+}
 
-	req, err := http.NewRequest(method, fullURL, bytes.NewReader(payload))
+func (c *apiClient) requestBytes(method, path string, query url.Values, headers map[string]string, body []byte) ([]byte, int, error) {
+	fullURL := c.baseURL + path
+	if len(query) > 0 {
+		fullURL += "?" + query.Encode()
+	}
+
+	req, err := http.NewRequest(method, fullURL, bytes.NewReader(body))
 	if err != nil {
 		return nil, 0, err
 	}
-	if body != nil {
-		req.Header.Set("Content-Type", "application/json")
+	for key, value := range headers {
+		if strings.TrimSpace(value) != "" {
+			req.Header.Set(key, value)
+		}
 	}
 	if c.token != "" {
 		req.Header.Set("Authorization", "Bearer "+c.token)
@@ -101,6 +106,10 @@ func (c *apiClient) get(path string, query url.Values) ([]byte, int, error) {
 
 func (c *apiClient) post(path string, body any) ([]byte, int, error) {
 	return c.request(http.MethodPost, path, nil, body)
+}
+
+func (c *apiClient) postBytes(path string, query url.Values, headers map[string]string, body []byte) ([]byte, int, error) {
+	return c.requestBytes(http.MethodPost, path, query, headers, body)
 }
 
 func printJSON(body []byte) error {

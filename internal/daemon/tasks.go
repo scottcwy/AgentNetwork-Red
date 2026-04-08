@@ -5,8 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"html/template"
+	"io"
 	"log"
+	"mime"
 	"net/http"
+	"net/url"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -95,6 +99,18 @@ func (d *Daemon) handleTaskItem(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		writeJSON(w, http.StatusOK, task)
+		return
+	}
+
+	if action == "bundle" {
+		switch r.Method {
+		case http.MethodGet:
+			d.handleTaskBundleGet(w, r, id)
+		case http.MethodPost:
+			d.handleTaskBundlePost(w, r, id)
+		default:
+			writeJSON(w, http.StatusMethodNotAllowed, errorResponse{Message: "method not allowed", Suggestion: "use GET or POST /api/tasks/{id}/bundle"})
+		}
 		return
 	}
 
@@ -188,6 +204,93 @@ func (d *Daemon) handleTaskItem(w http.ResponseWriter, r *http.Request) {
 	default:
 		writeJSON(w, http.StatusNotFound, errorResponse{Message: "unknown task action", Suggestion: "use claim, submit, accept, reject, dispute, cancel, abandon, or arbitrate"})
 	}
+}
+
+func (d *Daemon) handleTaskBundleGet(w http.ResponseWriter, r *http.Request, id string) {
+	bundle, err := d.store.GetTaskBundle(r.Context(), id)
+	if err != nil {
+		d.writeStoreError(w, err, "fetch task bundle")
+		return
+	}
+
+	filename := bundle.Filename
+	if filename == "" {
+		filename = id + ".nut"
+	}
+	w.Header().Set("Content-Type", bundle.MimeType)
+	w.Header().Set("Content-Disposition", "attachment; filename="+strconv.Quote(filename))
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(bundle.Data)
+}
+
+func (d *Daemon) handleTaskBundlePost(w http.ResponseWriter, r *http.Request, id string) {
+	task, err := d.store.GetTask(r.Context(), id)
+	if err != nil {
+		d.writeStoreError(w, err, "fetch task")
+		return
+	}
+	if task.Publisher != d.identity.DID && task.Claimant != d.identity.DID {
+		writeJSON(w, http.StatusForbidden, errorResponse{
+			Message:    "forbidden",
+			Suggestion: "only the publisher or claimant can attach a bundle",
+		})
+		return
+	}
+
+	data, err := io.ReadAll(io.LimitReader(r.Body, 32<<20))
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, errorResponse{Message: err.Error(), Suggestion: "send the bundle as a raw request body"})
+		return
+	}
+	if len(data) == 0 {
+		writeJSON(w, http.StatusBadRequest, errorResponse{Message: "empty bundle payload", Suggestion: "send a non-empty .nut payload"})
+		return
+	}
+
+	filename := strings.TrimSpace(r.Header.Get("X-Filename"))
+	if filename == "" {
+		if raw := r.URL.Query().Get("filename"); raw != "" {
+			if decoded, decodeErr := url.QueryUnescape(raw); decodeErr == nil {
+				filename = strings.TrimSpace(decoded)
+			}
+		}
+	}
+	if filename == "" {
+		filename = id + ".nut"
+	}
+
+	mimeType := strings.TrimSpace(r.Header.Get("Content-Type"))
+	if mimeType == "" || mimeType == "application/x-www-form-urlencoded" {
+		mimeType = mime.TypeByExtension(filepath.Ext(filename))
+	}
+	if mimeType == "" {
+		mimeType = "application/octet-stream"
+	}
+
+	bundle := store.TaskBundle{
+		TaskID:     id,
+		Filename:   filename,
+		MimeType:   mimeType,
+		Data:       data,
+		Uploader:   d.identity.DID,
+		UploadedAt: time.Now().UTC().Format(time.RFC3339),
+	}
+	if err := d.store.UpsertTaskBundle(r.Context(), bundle); err != nil {
+		writeJSON(w, http.StatusInternalServerError, errorResponse{
+			Message:    err.Error(),
+			Suggestion: "check the local bundle store health",
+		})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"task_id":     bundle.TaskID,
+		"filename":    bundle.Filename,
+		"mime_type":   bundle.MimeType,
+		"uploader":    bundle.Uploader,
+		"uploaded_at": bundle.UploadedAt,
+		"size_bytes":  len(bundle.Data),
+	})
 }
 
 func (d *Daemon) handleTaskBoard(w http.ResponseWriter, r *http.Request) {
