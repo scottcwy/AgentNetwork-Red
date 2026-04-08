@@ -484,5 +484,10 @@ func bootstrapPeersFromConfig(values []string) ([]peer.AddrInfo, error) {
 }
 
 func libp2pPrivateKey(key ed25519.PrivateKey) (libp2pcrypto.PrivKey, error) {
-	return libp2pcrypto.UnmarshalEd25519PrivateKey(key)
+	stdKey := key
+	priv, _, err := libp2pcrypto.KeyPairFromStdKey(&stdKey)
+	if err != nil {
+		return nil, err
+	}
+	return priv, nil
 }

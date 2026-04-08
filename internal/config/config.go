@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	defaultAPIPort = 3998
+	defaultAPIPort = 5001
 	defaultAPIHost = "127.0.0.1"
 )
 
@@ -40,13 +40,16 @@ func Default() Config {
 	return Config{
 		DataDir: DefaultDataDir(),
 		Listen: []string{
-			"/ip4/0.0.0.0/tcp/4001",
-			"/ip4/0.0.0.0/udp/4001/quic-v1",
+			"/ip4/0.0.0.0/tcp/5002",
+			"/ip4/0.0.0.0/udp/5002/quic-v1",
 		},
-		APIHost:        defaultAPIHost,
-		APIPort:        defaultAPIPort,
-		BootstrapPeers: nil,
-		LogLevel:       "info",
+		APIHost: defaultAPIHost,
+		APIPort: defaultAPIPort,
+		BootstrapPeers: []string{
+			"/ip4/8.149.141.115/tcp/5002/p2p/12D3KooWDbmAM77BhAUD94g2Vqeik3Bq4ZPKUPnyMGN3oAx6vCH6",
+			"/ip4/8.149.141.115/udp/5002/quic-v1/p2p/12D3KooWDbmAM77BhAUD94g2Vqeik3Bq4ZPKUPnyMGN3oAx6vCH6",
+		},
+		LogLevel: "info",
 	}
 }
 
